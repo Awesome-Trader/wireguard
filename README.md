@@ -26,7 +26,7 @@ sudo ./wg-ubuntu-server-up.sh
 wget https://raw.githubusercontent.com/drew2a/wireguard/master/wg-debian-server-up.sh
 
 chmod +x ./wg-debian-server-up.sh
-sudo ./wg-debian-server-up.sh
+./wg-debian-server-up.sh
 ```
 
 
