@@ -37,7 +37,7 @@ echo ---------------------------------------------------------------------update
 apt update -y
 
 echo --------------------------------------------------------------upgrade kernel
-sudo apt -y install linux-image-amd64 linux-headers-amd64
+apt -y install linux-image-amd64 linux-headers-amd64
 
 echo ---------------------------------------------------------install wireguard
 apt -y install wireguard
