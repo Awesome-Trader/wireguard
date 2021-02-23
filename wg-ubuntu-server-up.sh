@@ -51,7 +51,7 @@ apt install -y qrencode
 
 echo -------------------------------------------------- download wg-genconfig.sh
 cd "${working_dir}" &&
-wget https://raw.githubusercontent.com/drew2a/wireguard/master/wg-genconf.sh
+wget https://raw.githubusercontent.com/Automated-Systems/wireguard/master/wg-genconf.sh
 chmod +x ./wg-genconf.sh
 
 echo ----------------------generate configurations for "${clients}" clients
@@ -62,7 +62,6 @@ else
   # use the cloudflare as a DNS resolver
   ./wg-genconf.sh "${clients}" "1.1.1.1"
 fi
-
 
 echo -----------------------------------move server\'s config to /etc/wireguard/
 mv -v ./wg0.conf \
