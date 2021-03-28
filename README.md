@@ -13,7 +13,7 @@ Medium article: [How to deploy WireGuard node on a DigitalOcean's droplet](https
 ### Ubuntu
 
 ```bash
-wget https://raw.githubusercontent.com/Automated-Systems/wireguard/master/wg-ubuntu-server-up.sh
+wget https://raw.githubusercontent.com/anthony-kenikh/wireguard/master/wg-ubuntu-server-up.sh
 
 chmod +x ./wg-ubuntu-server-up.sh
 sudo ./wg-ubuntu-server-up.sh
@@ -23,7 +23,7 @@ sudo ./wg-ubuntu-server-up.sh
 ### Debian
 
 ```bash
-wget https://raw.githubusercontent.com/Automated-Systems/wireguard/master/wg-debian-server-up.sh
+wget https://raw.githubusercontent.com/anthony-kenikh/wireguard/master/wg-debian-server-up.sh
 
 chmod +x ./wg-debian-server-up.sh
 ./wg-debian-server-up.sh
