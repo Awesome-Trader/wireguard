@@ -1,24 +1,25 @@
 #!/usr/bin/env bash
 # usage:
-#     wg-genconf.sh [<number_of_clients> [<dns_ip> [<server_public_ip>]]]
+#   wg-genconf.sh [<number_of_clients> [<listen_port> [<dns_ip> [<server_public_ip>]]]]
 
 set -e # exit when any command fails
 set -x # enable print all commands
 
-#  clients' count
+# clients' count
 clients_count=${1:-10}
 
+# listen port
+listen_port=${2:-51820}
+
 # dns ip
-dns_ip=${2:-10.0.0.1}
+dns_ip=${3:-10.0.0.1}
 
 # server ip
-server_ip=${3}
+server_ip=${4}
+
 if [ -z "$server_ip" ]; then
   server_ip=$(hostname -I | awk '{print $1;}') # get only first hostname
 fi
-
-
-
 
 server_private_key=$(wg genkey)
 server_public_key=$(echo "${server_private_key}" | wg pubkey)
@@ -28,9 +29,10 @@ server_config=wg0.conf
 # Let's find that interface's name dynamic.
 # If you have a different configuration just uncomment and edit the following line and comment the next.
 #
-#server_public_interface=eth0
+# server_public_interface=eth0
 #
-#   thanks https://github.com/buraksarica for this improvement.
+# thanks https://github.com/buraksarica for this improvement.
+
 server_public_interface=$(route -n | awk '$1 == "0.0.0.0" {print $8}')
 
 echo Generate server \("${server_ip}"\) config:
@@ -43,7 +45,7 @@ cat > "${server_config}" <<EOL
 [Interface]
 Address = 10.0.0.1/24
 SaveConfig = true
-ListenPort = 51820
+ListenPort = ${listen_port}
 PrivateKey = ${server_private_key}
 PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o ${server_public_interface} -j MASQUERADE
 PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o ${server_public_interface} -j MASQUERADE
@@ -65,14 +67,14 @@ do
   	cat > "${client_config}" <<EOL
 [Interface]
 PrivateKey = ${client_private_key}
-ListenPort = 51820
+ListenPort = ${listen_port}
 Address = ${client_ip}
 DNS = ${dns_ip}
 
 [Peer]
 PublicKey = ${server_public_key}
 AllowedIPs = 0.0.0.0/0
-Endpoint = ${server_ip}:51820
+Endpoint = ${server_ip}:${listen_port}
 PersistentKeepalive = 21
 EOL
     cat >> "${server_config}" <<EOL

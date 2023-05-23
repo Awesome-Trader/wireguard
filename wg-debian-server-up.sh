@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # usage:
-#     wg-ubuntu-server-up.sh [--clients=<clients_count>] [--no-reboot] [--no-unbound]
-#
+#   wg-ubuntu-server-up.sh [--clients=<clients_count>] [--listen-port=<listen_port>] [--no-reboot] [--no-unbound]
 
 set -e # exit when any command fails
 set -x # enable print all commands
@@ -11,6 +10,7 @@ working_dir="$HOME/wireguard"
 
 # inputs:
 clients=10
+listen_port=51820
 reboot_enabled=true
 unbound_enabled=true
 
@@ -19,6 +19,7 @@ do
   [[ "${arg}" == "--no-reboot" ]] && reboot_enabled=
   [[ "${arg}" == "--no-unbound" ]] && unbound_enabled=
   [[ "${arg}" == "--clients="* ]] && clients=${arg#*=}
+  [[ "${arg}" == "--listen-port"* ]] && listen_port=${arg#*=}
 done
 
 # check a user is root
@@ -47,16 +48,16 @@ apt install -y qrencode
 
 echo -------------------------------------------------- download wg-genconfig.sh
 cd "${working_dir}" &&
-wget https://raw.githubusercontent.com/drew2a/wireguard/master/wg-genconf.sh
+wget https://raw.githubusercontent.com/mr-kenikh/wireguard/master/wg-genconf.sh
 chmod +x ./wg-genconf.sh
 
 echo ----------------------generate configurations for "${clients}" clients
 if [[ ${unbound_enabled} ]]; then
    # use the wireguard server as a DNS resolver
-  ./wg-genconf.sh "${clients}"
+  ./wg-genconf.sh "${clients}" "${listen_port}"
 else
   # use the cloudflare as a DNS resolver
-  ./wg-genconf.sh "${clients}" "1.1.1.1"
+  ./wg-genconf.sh "${clients}" "${listen_port}" "1.1.1.1"
 fi
 
 echo -----------------------------------move server\'s config to /etc/wireguard/
@@ -158,17 +159,19 @@ fi
 
 set +x # disable print all commands
 
-echo && echo You can use this config: client1.conf
-echo "--------------------------------------------------------↓"
-qrencode -t ansiutf8 < ~/wireguard/client1.conf
-echo "--------------------------------------------------------↑"
-echo && echo You can use this config: client1.conf
-echo "--------------------------------------------------------↓"
-cat "${working_dir}/client1.conf"
-echo "--------------------------------------------------------↑"
+if [[ ${clients} -gt 0 ]]; then
+  echo && echo You can use this config: client1.conf
+  echo "--------------------------------------------------------↓"
+  qrencode -t ansiutf8 < ~/wireguard/client1.conf
+  echo "--------------------------------------------------------↑"
+  echo && echo You can use this config: client1.conf
+  echo "--------------------------------------------------------↓"
+  cat "${working_dir}/client1.conf"
+  echo "--------------------------------------------------------↑"
 
-echo && echo "Or you could find all the generated configs here: ${working_dir}"
-echo
+  echo && echo "Or you could find all the generated configs here: ${working_dir}"
+  echo
+fi
 
 # if WG_SCRIPT_DISABLE_REBOOT is not set, then
 # reboot to make changes effective
