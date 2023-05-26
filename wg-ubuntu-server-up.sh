@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # usage:
-#   wg-ubuntu-server-up.sh [--clients=<clients_count>] [--listen-port=<listen_port>] [--no-reboot] [--no-unbound]
+#   wg-ubuntu-server-up.sh [--clients=<clients_count>] [--listen-port=<listen_port>] [--no-isolation] [--no-reboot] [--no-unbound]
 
 set -e # exit when any command fails
 set -x # enable print all commands
@@ -11,11 +11,13 @@ working_dir="$HOME/wireguard"
 # inputs:
 clients=10
 listen_port=51820
+isolation_enabled=true
 reboot_enabled=true
 unbound_enabled=true
 
 for arg in "$@"
 do
+  [[ "${arg}" == "--no-isolation" ]] && isolation_enabled=
   [[ "${arg}" == "--no-reboot" ]] && reboot_enabled=
   [[ "${arg}" == "--no-unbound" ]] && unbound_enabled=
   [[ "${arg}" == "--clients="* ]] && clients=${arg#*=}
@@ -56,12 +58,14 @@ wget https://raw.githubusercontent.com/mr-kenikh/wireguard/master/wg-genconf.sh
 chmod +x ./wg-genconf.sh
 
 echo ----------------------generate configurations for "${clients}" clients
+isolation_arg=$([ "$isolation_enabled" != true ] && echo "--no-isolation")
+
 if [[ ${unbound_enabled} ]]; then
    # use the wireguard server as a DNS resolver
-  ./wg-genconf.sh "${clients}" "${listen_port}"
+  ./wg-genconf.sh "--clients=${clients}" "--listen-port=${listen_port}" "${isolation_arg}"
 else
   # use the cloudflare as a DNS resolver
-  ./wg-genconf.sh "${clients}" "${listen_port}" "1.1.1.1"
+  ./wg-genconf.sh "--clients=${clients}" "--listen-port=${listen_port}" "--dns_ip=1.1.1.1" "${isolation_arg}"
 fi
 
 echo -----------------------------------move server\'s config to /etc/wireguard/

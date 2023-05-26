@@ -1,21 +1,25 @@
 #!/usr/bin/env bash
 # usage:
-#   wg-genconf.sh [<number_of_clients> [<listen_port> [<dns_ip> [<server_public_ip>]]]]
+#   wg-genconf.sh [--clients=<clients_count>] [--listen-port=<listen_port>] [--dns-ip=<dns_ip>] [--server-public-ip=<server_public_ip>] [--no-isolation]
 
 set -e # exit when any command fails
 set -x # enable print all commands
 
-# clients' count
-clients_count=${1:-10}
+# inputs:
+isolation_enabled=true
+clients_count=10
+listen_port=51820
+dns_ip=10.0.0.1
+server_ip=
 
-# listen port
-listen_port=${2:-51820}
-
-# dns ip
-dns_ip=${3:-10.0.0.1}
-
-# server ip
-server_ip=${4}
+for arg in "$@"
+do
+  [[ "${arg}" == "--no-isolation" ]] && isolation_enabled=
+  [[ "${arg}" == "--clients="* ]] && clients_count=${arg#*=}
+  [[ "${arg}" == "--listen-port"* ]] && listen_port=${arg#*=}
+  [[ "${arg}" == "--dns_ip"* ]] && dns_ip=${arg#*=}
+  [[ "${arg}" == "--server_ip"* ]] && server_ip=${arg#*=}
+done
 
 if [ -z "$server_ip" ]; then
   server_ip=$(hostname -I | awk '{print $1;}') # get only first hostname
@@ -38,25 +42,32 @@ server_public_interface=$(route -n | awk '$1 == "0.0.0.0" {print $8}')
 echo Generate server \("${server_ip}"\) config:
 echo
 echo -e "\t$(pwd)/${server_config}"
-#
-# server configs
-#
+
+post_up=""
+post_down=""
+
+if [[ "$isolation_enabled" != true ]]; then
+  post_up+="iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; "
+  post_down+="iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; "
+fi
+
+post_up+="iptables -t nat -A POSTROUTING -o server_public_interface -j MASQUERADE"
+post_down+="iptables -t nat -D POSTROUTING -o server_public_interface -j MASQUERADE"
+
 cat > "${server_config}" <<EOL
 [Interface]
 Address = 10.0.0.1/24
 SaveConfig = true
 ListenPort = ${listen_port}
 PrivateKey = ${server_private_key}
-PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o ${server_public_interface} -j MASQUERADE
-PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o ${server_public_interface} -j MASQUERADE
+PostUp = ${post_up}
+PostDown = ${post_down}
 EOL
 
 echo
 echo Generate configs for "${clients_count}" clients:
 echo
-#
-# clients configs
-#
+
 for i in $(seq 1 "${clients_count}");
 do
     client_private_key=$(wg genkey)
