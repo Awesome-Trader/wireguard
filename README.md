@@ -56,6 +56,7 @@ Options:
 
 - `--clients=<clients_count>` how many client's configs will be created
 - `--listen-port=<listen_port>` wireguard listen port (51820 will be used as a default port)
+- `--no-isolation` disables client isolation
 - `--no-unbound` disables Unbound server installation (1.1.1.1 will be used as a default DNS for client's configs)
 - `--no-reboot` disables rebooting at the end of the script execution
 
@@ -92,15 +93,16 @@ Install [WireGuard](https://www.wireguard.com) if it's not installed.
 ### Usage
 
 ```bash
-./wg-genconf.sh [<number_of_clients> [<listen_port> [<dns_ip> [<server_public_ip>]]]]
+./wg-genconf.sh [--clients=<clients_count>] [--listen-port=<listen_port>] [--dns-ip=<dns_ip>] [--server-public-ip=<server_public_ip>] [--no-isolation]
 ```
 
-Where:
+Options:
 
-- `number_of_clients` how many client's configs will be generated
-- `listen_port` wireguard listen port (51820 will be used as a default port)
-- `dns_ip` the script should use this IP as a DNS address
-- `server_public_ip` the script should use this IP as a server address
+- `--clients=<clients_count>` how many client's configs will be generated
+- `--listen-port=<listen_port>` wireguard listen port (51820 will be used as a default port)
+- `--dns-ip=<dns_ip>` the script should use this IP as a DNS address
+- `--server-public-ip=<server_public_ip>` the script should use this IP as a server address
+- `--no-isolation` disables client isolation
 
 ### Example of usage:
 
@@ -109,17 +111,20 @@ Where:
 ```
 
 ```bash
-./wg-genconf.sh 10
+./wg-genconf.sh --clients=10
 ```
 
 ```bash
-./wg-genconf.sh 10 1234
+./wg-genconf.sh --clients=10 --listen-port=1234
 ```
 
 ```bash
-./wg-genconf.sh 10 1234 1.1.1.1
+./wg-genconf.sh --clients=10 --listen-port=1234 --dns-ip=1.1.1.1
 ```
 
+````bash
+./wg-genconf.sh --clients=10 --listen-port=1234 --dns-ip=1.1.1.1 --server-public-ip157.245.73.253
+
 ```bash
-./wg-genconf.sh 10 1234 1.1.1.1 157.245.73.253
-```
+./wg-genconf.sh --clients=10 --listen-port=1234 --dns-ip=1.1.1.1 --server-public-ip157.245.73.253 --no-isolation
+````
