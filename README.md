@@ -122,9 +122,10 @@ Options:
 ./wg-genconf.sh --clients=10 --listen-port=1234 --dns-ip=1.1.1.1
 ```
 
-````bash
-./wg-genconf.sh --clients=10 --listen-port=1234 --dns-ip=1.1.1.1 --server-public-ip157.245.73.253
+```bash
+./wg-genconf.sh --clients=10 --listen-port=1234 --dns-ip=1.1.1.1 --server-public-ip=157.245.73.253
+```
 
 ```bash
-./wg-genconf.sh --clients=10 --listen-port=1234 --dns-ip=1.1.1.1 --server-public-ip157.245.73.253 --no-isolation
-````
+./wg-genconf.sh --clients=10 --listen-port=1234 --dns-ip=1.1.1.1 --server-public-ip=157.245.73.253 --no-isolation
+```
