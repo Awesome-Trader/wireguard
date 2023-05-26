@@ -17,8 +17,8 @@ do
   [[ "${arg}" == "--no-isolation" ]] && isolation_enabled=
   [[ "${arg}" == "--clients="* ]] && clients_count=${arg#*=}
   [[ "${arg}" == "--listen-port"* ]] && listen_port=${arg#*=}
-  [[ "${arg}" == "--dns_ip"* ]] && dns_ip=${arg#*=}
-  [[ "${arg}" == "--server_ip"* ]] && server_ip=${arg#*=}
+  [[ "${arg}" == "--dns-ip"* ]] && dns_ip=${arg#*=}
+  [[ "${arg}" == "--server-ip"* ]] && server_ip=${arg#*=}
 done
 
 if [ -z "$server_ip" ]; then
