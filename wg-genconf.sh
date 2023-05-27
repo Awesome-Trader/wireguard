@@ -51,8 +51,8 @@ if [[ ${isolation_enabled} != true ]]; then
   post_down+="iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; "
 fi
 
-post_up+="iptables -t nat -A POSTROUTING -o server_public_interface -j MASQUERADE"
-post_down+="iptables -t nat -D POSTROUTING -o server_public_interface -j MASQUERADE"
+post_up+="iptables -t nat -A POSTROUTING -o ${server_public_interface} -j MASQUERADE"
+post_down+="iptables -t nat -D POSTROUTING -o ${server_public_interface} -j MASQUERADE"
 
 cat > "${server_config}" <<EOL
 [Interface]
