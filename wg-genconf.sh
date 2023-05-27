@@ -46,7 +46,7 @@ echo -e "\t$(pwd)/${server_config}"
 post_up=""
 post_down=""
 
-if [[ "$isolation_enabled" != true ]]; then
+if [[ ${isolation_enabled} != true ]]; then
   post_up+="iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; "
   post_down+="iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; "
 fi

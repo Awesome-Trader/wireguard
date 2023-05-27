@@ -58,7 +58,12 @@ wget https://raw.githubusercontent.com/mr-kenikh/wireguard/master/wg-genconf.sh
 chmod +x ./wg-genconf.sh
 
 echo ----------------------generate configurations for "${clients}" clients
-isolation_arg=$([ "$isolation_enabled" != true ] && echo "--no-isolation")
+
+isolation_arg=
+
+if [[ ${isolation_enabled} != true ]]; then
+  isolation_arg="--no-isolation"
+fi
 
 if [[ ${unbound_enabled} ]]; then
    # use the wireguard server as a DNS resolver
